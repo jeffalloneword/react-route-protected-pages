@@ -3,7 +3,8 @@ import {
   BrowserRouter as Router,
   Route,
   Link,
-  Redirect
+  Redirect,
+  withRouter
 } from 'react-router-dom'
 
 const fakeAuth = {
@@ -62,11 +63,24 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
   )}/>
 )
 
+const AuthButton = withRouter(({ history }) => (
+  fakeAuth.isAuthenticated === true
+    ? <p>
+      Welcome! <button onClick={() => {
+        fakeAuth.signout(() => history.push('/'))
+      }}>Signout</button>
+      </p>
+    : <p>
+      You are not logged in.
+    </p>
+))
+
 class App extends Component {
   render() {
     return (
       <Router>
         <div>
+          <AuthButton />
           <ul>
             <li><Link to='/public'>Public Page</Link></li>
             <li><Link to='/protected'>Protected Page</Link></li>
