@@ -22,10 +22,30 @@ const Public = () => <h3>Public</h3>
 const Protected = () => <h3>Protected</h3>
 
 class Login extends Component {
+  state = {
+    redirectToReferrer: false
+  }
+  login = () => {
+    fakeAuth.authenticate(() => {
+      this.setState(() => ({
+        redirectToReferrer: true
+      }))
+    })
+  }
   render() {
+    const { redirectToReferrer } = this.state
+    const { from } = this.props.location.state || { from: { pathname: '/' } }
+
+    if (redirectToReferrer === true) {
+      return (
+        <Redirect to={from} />
+      )
+    }
+
     return (
       <div>
-        LOGIN
+        <p>You must login to view this page at {from.pathname}</p>
+        <button onClick={this.login}>Login</button>
       </div>
     )
   }
@@ -35,7 +55,10 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route {...rest} render={(props) => (
     fakeAuth.isAuthenticated === true
     ? <Component {...props} />
-    : <Redirect to='/login' />
+    : <Redirect to={{
+      pathname: '/login',
+      state: { from: props.location }
+    }} />
   )}/>
 )
 
